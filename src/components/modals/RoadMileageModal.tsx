@@ -339,7 +339,6 @@ export function RoadMileageModal(props: { open: boolean; onClose: () => void }) 
         const label = `${t.dayLabel} • ISO ${t.isoWeek} • W${t.weekKey} • ${t.points.length} точ.`;
         setProgress({ done: idx, total: tasks.length, label });
 
-        // Safety: too many points => warn in report but still try
         const ordered = buildOrder({
           orderMode,
           weekKey: t.weekKey,
@@ -486,6 +485,9 @@ export function RoadMileageModal(props: { open: boolean; onClose: () => void }) 
   const saveWithOrder = () => {
     if (!draftReports || !draftOrders) return;
 
+    // if for some reason there is nothing to save (should not happen), keep the button disabled
+    if (draftReports.length === 0) return;
+
     // persist all orders into visitOrderByWeek
     const next = data.points.map((p) => {
       const upd = draftOrders[p.id];
@@ -550,7 +552,7 @@ export function RoadMileageModal(props: { open: boolean; onClose: () => void }) 
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 max-h-[calc(100vh-190px)] overflow-y-auto">
           <div className="text-xs text-slate-500 dark:text-slate-400">
             <b>Ограничения и правила расчёта:</b>
             <ul className="list-disc pl-5 mt-1 space-y-1">

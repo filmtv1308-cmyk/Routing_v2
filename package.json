@@ -14,8 +14,8 @@
     "clsx": "2.1.1",
     "leaflet": "^1.9.4",
     "react": "19.2.3",
-    "react-chartjs-2": "^5.3.1",
     "react-dom": "19.2.3",
+    "react-leaflet": "^5.0.0",
     "tailwind-merge": "3.4.0",
     "xlsx": "^0.18.5"
   },

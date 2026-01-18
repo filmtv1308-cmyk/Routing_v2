@@ -49,7 +49,6 @@ export function BulkEditPointsModal({ open, onClose }: BulkEditPointsModalProps)
 
   useEffect(() => {
     if (!open) return;
-    // reset fields each time modal opens
     setNewRoute('');
     setNewDay('');
     setNewFreq('');
@@ -76,15 +75,12 @@ export function BulkEditPointsModal({ open, onClose }: BulkEditPointsModalProps)
     const freqCanon = newFreq ? normalizeFreqCode(newFreq) : '';
     const dayCanon = newDay ? normalizeDayCode(newDay) : '';
 
-    // Validation: freq=0 requires day 6 or 7 (weekend)
     if (freqCanon === '0') {
-      // if we set a day - must be weekend
       if (dayCanon && dayCanon !== '6' && dayCanon !== '7') {
         setError('Частота = 0 допускается только при дне посещения 6 (СБ) или 7 (ВС).');
         return;
       }
 
-      // if we don't set a day, ensure each selected point is already weekend
       if (!dayCanon) {
         const bad = selectedPoints.filter(p => {
           const d = normalizeDayCode(p.visitDayCode);
@@ -97,7 +93,6 @@ export function BulkEditPointsModal({ open, onClose }: BulkEditPointsModalProps)
       }
     }
 
-    // If changing day to weekday but leaving freq=0 on some points => invalid
     if (dayCanon && dayCanon !== '6' && dayCanon !== '7') {
       const bad = selectedPoints.filter(p => normalizeFreqCode(p.frequencyCode) === '0');
       if (bad.length > 0 && !freqCanon) {
@@ -117,7 +112,6 @@ export function BulkEditPointsModal({ open, onClose }: BulkEditPointsModalProps)
     });
 
     updatePoints(updated);
-    // reset selection & mileage marker numbers after bulk edit
     clearSelection();
     setMileageOrderNumbers(null);
     onClose();

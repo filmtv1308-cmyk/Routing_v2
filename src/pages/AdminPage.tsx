@@ -29,7 +29,7 @@ export function AdminPage() {
   const [polygonsMsg, setPolygonsMsg] = useState('');
   const [startMsg, setStartMsg] = useState('');
   const [polygonColorIndex, setPolygonColorIndex] = useState(0);
-  const [calendarYear, setCalendarYear] = useState(2025);
+  const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear());
 
   // Points import
   const handlePointsImport = useCallback(async (files: FileList | null) => {
@@ -285,7 +285,7 @@ export function AdminPage() {
     } else {
       setPolygonsMsg('TXT: Не найдено полигонов с минимум 3 точками.');
     }
-  }, [addPolygonsFromFiles, polygonColorIndex]);
+  }, [addPolygonsFromFiles, polygonColorIndex, data.polygons]);
 
   // Polygons import (JSON API format) — supports multiple files
   const handlePolygonsImportJson = useCallback(async (files: FileList | null) => {
@@ -428,7 +428,7 @@ export function AdminPage() {
     } else {
       setPolygonsMsg(errors.length ? `JSON: Ошибки (${errors.length}). Полигоны не импортированы.` : 'JSON: валидных полигонов не найдено.');
     }
-  }, [addPolygonsFromFiles, polygonColorIndex]);
+  }, [addPolygonsFromFiles, polygonColorIndex, data.polygons]);
 
   // Start points import
   const handleStartImport = useCallback(async (files: FileList | null) => {
@@ -1000,55 +1000,10 @@ export function AdminPage() {
               <div className="text-xs text-slate-500 dark:text-slate-400">Номера недель по ISO 8601</div>
             </div>
 
-            {/* Legend */}
-            <div className="mb-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
-                <div className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Легенда: чётность недели (цветная полоса слева)</div>
-                <div className="flex flex-wrap gap-2 text-xs text-slate-700 dark:text-slate-300">
-                  <span className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white/70 dark:bg-white/10 border border-slate-200/60 dark:border-white/10">
-                    <span className="inline-block w-3 h-3 rounded-sm border-l-4 border-sky-400" /> Нечётная ISO-неделя
-                  </span>
-                  <span className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white/70 dark:bg-white/10 border border-slate-200/60 dark:border-white/10">
-                    <span className="inline-block w-3 h-3 rounded-sm border-l-4 border-amber-400" /> Чётная ISO-неделя
-                  </span>
-                </div>
-                <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
-                  Полоса соответствует <b>чётности номера ISO-недели</b> (1,3,5… — нечётные; 2,4,6… — чётные).
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
-                <div className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Легенда: 4-недельный цикл (цвет фона)</div>
-                <div className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-300">
-                  <span className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white/70 dark:bg-white/10 border border-slate-200/60 dark:border-white/10">
-                    <span className="inline-block w-3 h-3 rounded bg-emerald-200 dark:bg-emerald-900/40 border border-emerald-200/60 dark:border-emerald-700/30" /> 1.1 (W1)
-                  </span>
-                  <span className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white/70 dark:bg-white/10 border border-slate-200/60 dark:border-white/10">
-                    <span className="inline-block w-3 h-3 rounded bg-violet-200 dark:bg-violet-900/40 border border-violet-200/60 dark:border-violet-700/30" /> 1.2 (W2)
-                  </span>
-                  <span className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white/70 dark:bg-white/10 border border-slate-200/60 dark:border-white/10">
-                    <span className="inline-block w-3 h-3 rounded bg-rose-200 dark:bg-rose-900/40 border border-rose-200/60 dark:border-rose-700/30" /> 1.3 (W3)
-                  </span>
-                  <span className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white/70 dark:bg-white/10 border border-slate-200/60 dark:border-white/10">
-                    <span className="inline-block w-3 h-3 rounded bg-cyan-200 dark:bg-cyan-900/40 border border-cyan-200/60 dark:border-cyan-700/30" /> 1.4 (W4)
-                  </span>
-                </div>
-                <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
-                  Фон соответствует <b>номеру недели в 4-недельном цикле</b>, который используется в кодах частоты <code className="font-mono">1,1..1,4</code>.
-                </div>
-              </div>
-
-              <div className="lg:col-span-2 text-[11px] text-slate-500 dark:text-slate-400">
-                Примечание: часть дней января может относиться к ISO-неделе предыдущего года, а конец декабря — к ISO-неделе следующего года.
-                Такие номера недель отображаются в календаре, но приглушены.
-              </div>
-            </div>
-
-            {/* All ISO weeks panel */}
             <div className="mb-4 p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <div className="text-sm font-semibold text-slate-900 dark:text-white">Все ISO-недели {calendarYear} (1–{getISOWeeksInYear(calendarYear)})</div>
-                <div className="text-[11px] text-slate-500 dark:text-slate-400">цвет фона = 4-недельный цикл, полоса = чётность</div>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">цвет фона = 4-недельный цикл</div>
               </div>
               <div className="flex flex-wrap gap-1 max-h-28 overflow-auto">
                 {Array.from({ length: getISOWeeksInYear(calendarYear) }, (_, i) => i + 1).map((w) => {
@@ -1077,130 +1032,112 @@ export function AdminPage() {
         {activeTab === 'help' && (
           <div className="mt-4">
             <div className="space-y-6 max-h-[calc(100vh-280px)] overflow-y-auto pr-2">
-              {/* Intro */}
               <div className="rounded-xl p-4 border border-sky-200 dark:border-sky-800/30 bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-900/20 dark:to-indigo-900/20">
                 <div className="text-lg font-bold text-sky-700 dark:text-sky-300">📖 Инструкция по Route Master</div>
                 <div className="mt-2 text-sm text-slate-700 dark:text-slate-300">
-                  <b>Route Master</b> — приложение для управления торговыми точками, маршрутами (ТП), днями посещений и цикличностью.
-                  Все данные хранятся локально в браузере (кэшируются) и доступны после перезагрузки.
+                  <b>Route Master</b> — приложение для работы с торговыми точками, маршрутами (ТП), днями посещений и цикличностью.
+                  Данные хранятся локально в браузере (localStorage).
                 </div>
               </div>
 
-              {/* Caching */}
               <div className="border border-slate-200 dark:border-white/10 rounded-xl p-4">
-                <div className="font-semibold text-base mb-2">💾 Кэширование данных</div>
-                <div className="text-sm text-slate-700 dark:text-slate-300 space-y-2">
-                  <p>
-                    Приложение сохраняет данные в <b>localStorage</b> (память браузера). Поэтому импортированные точки/полигоны/старты
-                    не нужно загружать заново после обновления страницы.
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li><b>Экспорт/импорт</b> доступен на вкладке <b>Бэкап</b> (только Admin).</li>
-                    <li>Если очистить данные сайта/браузера — кэш будет удалён.</li>
-                  </ul>
+                <div className="font-semibold text-base mb-2">✅ Быстрый старт</div>
+                <ol className="list-decimal pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                  <li>Зайдите в <b>Карту</b> и выберите режим: <b>Территории</b> (много маршрутов) или <b>Секции</b> (один маршрут).</li>
+                  <li>Загрузите данные: Админ → <b>Импорт точек</b>, затем (опционально) <b>Импорт полигонов</b> и <b>Точки старта</b>.</li>
+                  <li>Используйте фильтры слева: маршруты/филиалы/дни/недели ISO, поиск по коду/адресу.</li>
+                  <li>Выделяйте точки (чекбоксы, лассо/прямоугольник) и массово редактируйте через кнопку <b>Изменить</b>.</li>
+                </ol>
+              </div>
+
+              <div className="border border-slate-200 dark:border-white/10 rounded-xl p-4">
+                <div className="font-semibold text-base mb-3">🗺️ Режимы карты</div>
+                <div className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
+                  <div className="p-3 rounded-lg bg-slate-50 dark:bg-white/5">
+                    <div className="font-semibold">Территории</div>
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li>Одновременно можно видеть несколько маршрутов.</li>
+                      <li>Доступны фильтры по филиалам и маршрутам.</li>
+                      <li>Полигоны отображают зоны (например, доставки) и их дни.</li>
+                      <li>Кнопка <b>🚗 Пробег (оценка)</b> — расчёт по прямой (haversine×1.3, скорость 40 км/ч) по всем активным маршрутам.</li>
+                    </ul>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-50 dark:bg-white/5">
+                    <div className="font-semibold">Секции</div>
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li>Работа с одним маршрутом (ТП).</li>
+                      <li>Точки окрашены по дням недели.</li>
+                      <li>Можно вручную задавать порядок посещения (перетаскиванием) при выбранных 1 дне и 1 неделе.</li>
+                      <li>Кнопка <b>🚗 Пробег (дороги)</b> — расчёт по дорогам через OSRM (нужна точка старта для маршрута).</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 
-              {/* Imports */}
               <div className="border border-slate-200 dark:border-white/10 rounded-xl p-4">
-                <div className="font-semibold text-base mb-3">📥 Импорты (Админ. панель)</div>
-                <div className="text-sm text-slate-700 dark:text-slate-300 space-y-3">
+                <div className="font-semibold text-base mb-3">📥 Импорт данных (Админ. панель)</div>
+                <div className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
                   <div>
                     <div className="font-semibold">1) Импорт точек (Excel)</div>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Можно загрузить <b>несколько Excel-файлов</b> одновременно.</li>
-                      <li>После импорта файлы отображаются списком: <b>имя файла + количество строк</b>, можно удалить каждый файл отдельно.</li>
-                      <li>Обновление/добавление выполняется по <b>Коду клиента</b> (clientCode).</li>
-                      <li>Колонки: Филиал, Код клиента, Название, Адрес, GPS долгота, GPS широта, Канал, Частота, Время, Маршрут, Менеджер, Леер, День посещения, Порядок W1–W4.</li>
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li>Можно загружать несколько файлов.</li>
+                      <li>Обновление/добавление выполняется по <b>Коду клиента</b>.</li>
+                      <li>Поддерживаются колонки порядка <b>W1–W4</b> (ручной порядок посещения).</li>
                     </ul>
                   </div>
-
                   <div>
-                    <div className="font-semibold">2) Импорт полигонов (TXT / JSON API)</div>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Поддерживается загрузка <b>нескольких файлов</b> TXT и JSON.</li>
-                      <li>Каждый файл получает свой цвет (для удобства визуального разделения зон).</li>
-                      <li>Для JSON (API) подтягиваются <b>дни доставки</b> и <b>окна времени</b>; при клике по полигону показывается всплывающая информация.</li>
-                      <li>Можно удалить полигоны <b>по файлу</b> (удаляются все зоны из этого файла).</li>
+                    <div className="font-semibold">2) Импорт полигонов (TXT / JSON)</div>
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li><b>TXT</b>: имя зоны + координаты (lat,lon), опционально строка с днями.</li>
+                      <li><b>JSON</b>: API-формат с геометрией (Polygon/MultiPolygon) и окнами доставки/заказов.</li>
+                      <li>Можно удалять зоны «по файлу».</li>
                     </ul>
                   </div>
-
                   <div>
                     <div className="font-semibold">3) Точки старта (Excel)</div>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Колонки: Маршрут, Адрес старта, GPS широта, GPS долгота.</li>
-                      <li>На карте отображаются <b>флажками</b> и показываются только для маршрутов, чьи точки сейчас видимы.</li>
-                      <li>Нужны для расчёта пробега в режиме «Секции».</li>
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li>Нужны для расчёта пробега по дорогам (режим «Секции»).</li>
+                      <li>Показываются на карте флажками.</li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              {/* Territory mode */}
               <div className="border border-slate-200 dark:border-white/10 rounded-xl p-4">
-                <div className="font-semibold text-base mb-3">🗺️ Режим «Территории» (зоны ответственности)</div>
-                <div className="text-sm text-slate-700 dark:text-slate-300 space-y-3">
+                <div className="font-semibold text-base mb-3">🎯 Выделение и массовое редактирование</div>
+                <div className="text-sm text-slate-700 dark:text-slate-300 space-y-2">
                   <ul className="list-disc pl-5 space-y-1">
-                    <li>Доступен <b>множественный выбор</b> филиалов и маршрутов.</li>
-                    <li>Зоны (полигоны) помогают визуально разделять территорию ответственности и дни доставки.</li>
-                    <li>Выделяйте точки через чекбоксы в списке или инструментами на карте (лассо/прямоугольник).</li>
+                    <li>Выделяйте точки чекбоксами в списке.</li>
+                    <li>На карте доступны инструменты: <b>лассо</b> и <b>прямоугольник</b>.</li>
+                    <li>Кнопка <b>Изменить</b> применяет изменения ко всем выбранным точкам.</li>
+                    <li>Правило: частота <b>0</b> допустима только при днях <b>СБ/ВС</b>.</li>
                   </ul>
-
-                  <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-lg">
-                    <div className="font-semibold mb-1">Массовое редактирование (кнопка «Изменить»)</div>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>В Территориях можно массово назначить: <b>маршрут</b>, <b>день посещения</b>, <b>цикличность</b>.</li>
-                      <li>Изменения сохраняются и попадают в <b>Экспорт точек</b>.</li>
-                    </ul>
-                  </div>
                 </div>
               </div>
 
-              {/* Section mode */}
               <div className="border border-slate-200 dark:border-white/10 rounded-xl p-4">
-                <div className="font-semibold text-base mb-3">🧩 Режим «Секции» (работа с одним маршрутом/ТП)</div>
-                <div className="text-sm text-slate-700 dark:text-slate-300 space-y-3">
+                <div className="font-semibold text-base mb-2">💾 Бэкап</div>
+                <div className="text-sm text-slate-700 dark:text-slate-300 space-y-2">
                   <ul className="list-disc pl-5 space-y-1">
-                    <li>Выбирается <b>один маршрут</b> (ТП).</li>
-                    <li>Точки окрашиваются по дням недели.</li>
-                    <li>Доступен расчёт пробега (если есть точка старта).</li>
+                    <li>Страница <b>Бэкап</b> позволяет экспортировать/импортировать все данные в JSON.</li>
+                    <li>Полезно для переноса данных между ПК или восстановления после очистки браузера.</li>
                   </ul>
-
-                  <div className="p-3 bg-slate-50 dark:bg-white/5 rounded-lg">
-                    <div className="font-semibold mb-1">Перенос на другой день / цикличность</div>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Выделите точки (чекбоксами или на карте) → нажмите <b>Изменить</b>.</li>
-                      <li>В Секции можно менять только: <b>День посещения</b> и <b>Цикличность (частоту)</b>.</li>
-                      <li>Правило: <b>Частота = 0</b> допускается только при днях <b>СБ/ВС</b>.</li>
-                      <li>Все изменения сохраняются и доступны в <b>Экспорте</b>.</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                    <div className="font-semibold mb-1">Подсказка по частотам (цикличности)</div>
-                    <div className="text-xs text-slate-700 dark:text-slate-200">
-                      <div><b>4</b> — еженедельно</div>
-                      <div><b>2,1</b> — каждая нечётная ISO-неделя, <b>2,2</b> — каждая чётная</div>
-                      <div><b>1,1..1,4</b> — 1–4 неделя в четырёхнедельном цикле</div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Shortcuts */}
               <div className="border border-slate-200 dark:border-white/10 rounded-xl p-4">
-                <div className="font-semibold text-base mb-2">⌨️ Горячие клавиши</div>
+                <div className="font-semibold text-base mb-2">⌨️ Подсказки</div>
                 <div className="text-sm text-slate-700 dark:text-slate-300">
                   <ul className="list-disc pl-5 space-y-1">
-                    <li><b>Ctrl+F</b> — фокус на поиск (на странице Карта)</li>
-                    <li><b>Escape</b> — закрыть модальное окно / отменить инструмент выделения</li>
-                    <li><b>Shift+клик</b> — множественный выбор в фильтрах (в режиме Секции)</li>
+                    <li><b>Escape</b> — закрыть модалку / отменить выделение на карте.</li>
+                    <li><b>Shift + клик</b> в фильтрах (в режиме «Секции») — множественный выбор дней/недель.</li>
+                    <li>Порядок W1–W4 редактируется перетаскиванием в списке при выбранной неделе и дне.</li>
                   </ul>
                 </div>
               </div>
 
               <div className="text-center text-xs text-slate-400 dark:text-slate-500 py-2">
-                Route Master • Документация внутри приложения (без PDF)
+                Route Master • Инструкция встроена в приложение
               </div>
             </div>
           </div>

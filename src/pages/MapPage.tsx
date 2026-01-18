@@ -172,7 +172,7 @@ export function MapPage() {
     if (!mapRef.current || filteredPoints.length === 0) return;
     const pts = filteredPoints.filter(p => isFinite(p.lat) && isFinite(p.lon));
     if (pts.length === 0) return;
-    const bounds = L.latLngBounds(pts.map(p => [p.lat, p.lon]));
+    const bounds = L.latLngBounds(pts.map(p => [p.lat, p.lon] as [number, number]));
     mapRef.current.fitBounds(bounds.pad(0.1));
   }, [filteredPoints]);
 

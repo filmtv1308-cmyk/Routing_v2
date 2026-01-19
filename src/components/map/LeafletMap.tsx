@@ -78,28 +78,18 @@ export function LeafletMap({ points, polygons, startPoints, onMapReady, onPointC
   updateWhenIdle: true,
 }).setView([43.2383, 76.9279], 11);
     
-    const light = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  maxZoom: 20,
-  attribution: '© OSM',
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '',
   detectRetina: true,
   updateWhenIdle: true,
-  keepBuffer: 6
-});
-    
-    const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  maxZoom: 19,
-  attribution: '© Esri',
-  updateWhenIdle: true,
-  keepBuffer: 6
+  keepBuffer: 8,
+  crossOrigin: true,
 });
 
-light.addTo(map);
+osm.addTo(map);
 
-L.control.layers(
-  { 'Схема': light, 'Спутник': esri },
-  {},
-  { position: 'bottomright' }
-).addTo(map);
+
 
     pointsLayerRef.current = L.layerGroup().addTo(map);
     polygonLayerRef.current = L.layerGroup().addTo(map);
@@ -271,28 +261,42 @@ L.control.layers(
       let marker = existingMarkers.get(p.id);
       
       if (!marker) {
-        const icon = makeDivIcon(color, orderNum);
-        marker = L.marker([p.lat, p.lon], { icon });
+  marker = L.circleMarker([p.lat, p.lon], {
+    radius: orderNum != null ? 6 : 4,
+    color: '#ffffff',
+    weight: 1,
+    fillColor: color,
+    fillOpacity: 0.9,
+    pane: 'markerPane',
+  });
 
         const freqLabel = getFreqLabelFromCode(p.frequencyCode);
         const dayLabel = day ? (DAY_CODE_TO_LABEL[day] || '') : '';
-        marker.bindPopup(`
-          <div style="min-width:250px">
-            <div style="font-weight:800; font-size:14px">${p.name || ''}</div>
-            <div style="margin-top:4px; font-size:12px; color:#64748b">${p.address || ''}</div>
-            <div style="margin-top:8px; font-size:12px">
-              <div><b>Код клиента:</b> ${p.clientCode || ''}</div>
-              <div><b>Филиал:</b> ${p.branch || ''}</div>
-              <div><b>Маршрут:</b> ${p.route || ''}</div>
-              <div><b>Канал:</b> ${p.channel || ''}</div>
-              ${freqLabel ? `<div><b>Частота:</b> ${freqLabel}</div>` : ''}
-              ${dayLabel ? `<div><b>День:</b> ${dayLabel}</div>` : ''}
-              ${p.visitMinutes ? `<div><b>Время на посещение:</b> ${p.visitMinutes} мин</div>` : ''}
-              ${p.manager ? `<div><b>Менеджер:</b> ${p.manager}</div>` : ''}
-              ${p.leer ? `<div><b>Леер:</b> ${p.leer}</div>` : ''}
-            </div>
-          </div>
-        `);
+        marker.on('click', () => {
+  const freqLabel = getFreqLabelFromCode(p.frequencyCode);
+  const dayLabel = day ? (DAY_CODE_TO_LABEL[day] || '') : '';
+
+  marker.bindPopup(`
+    <div style="min-width:250px">
+      <div style="font-weight:800; font-size:14px">${p.name || ''}</div>
+      <div style="margin-top:4px; font-size:12px; color:#64748b">${p.address || ''}</div>
+      <div style="margin-top:8px; font-size:12px">
+        <div><b>Код клиента:</b> ${p.clientCode || ''}</div>
+        <div><b>Филиал:</b> ${p.branch || ''}</div>
+        <div><b>Маршрут:</b> ${p.route || ''}</div>
+        <div><b>Канал:</b> ${p.channel || ''}</div>
+        ${freqLabel ? `<div><b>Частота:</b> ${freqLabel}</div>` : ''}
+        ${dayLabel ? `<div><b>День:</b> ${dayLabel}</div>` : ''}
+        ${p.visitMinutes ? `<div><b>Время на посещение:</b> ${p.visitMinutes} мин</div>` : ''}
+        ${p.manager ? `<div><b>Менеджер:</b> ${p.manager}</div>` : ''}
+        ${p.leer ? `<div><b>Леер:</b> ${p.leer}</div>` : ''}
+      </div>
+    </div>
+  `);
+
+  marker.openPopup();
+  onPointClick?.(p.id);
+});
 
         // Click on marker: scroll list to point
         marker.on('click', () => {
@@ -302,7 +306,10 @@ L.control.layers(
         existingMarkers.set(p.id, marker);
         pointsLayerRef.current.addLayer(marker);
       } else {
-        marker.setIcon(makeDivIcon(color, orderNum));
+  (marker as L.CircleMarker).setStyle({
+    fillColor: color,
+    radius: orderNum != null ? 6 : 4,
+  });
         if (!pointsLayerRef.current.hasLayer(marker)) {
           pointsLayerRef.current.addLayer(marker);
         }

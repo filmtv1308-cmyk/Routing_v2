@@ -30,7 +30,7 @@ function normalizeVisitMinutes(raw: Point['visitMinutes']): number {
   return Math.round(n);
 }
 
-function buildCombinedReport(reports: RoadMileageReport[]): RoadMileageReport {
+function buildCombinedReport(reports: RoadMileageReport[]): RoadMileageReport & { meta: any } {
   const base = reports[0];
 
   const driveMinutes = toIntMinutes(
@@ -45,20 +45,21 @@ function buildCombinedReport(reports: RoadMileageReport[]): RoadMileageReport {
     id: uid(),
     createdAt: new Date().toISOString(),
 
-    // общий отчёт — не по одному дню
+    // общий отчёт
     dayCode: 'ALL',
     dayLabel: 'Все дни',
     weekKey: 'ALL',
 
-    // агрегаты
+    // агрегаты для карточки
     stops: reports.flatMap(r => r.stops),
     driveKm: round1(reports.reduce((s, r) => s + r.driveKm, 0)),
     driveMinutes,
     serviceMinutes,
     totalMinutes: driveMinutes + serviceMinutes,
 
-    // список комбинаций как в Territory
+    // ВАЖНО: сохраняем все исходные отчёты для Excel
     meta: {
+      reports,   // ← ВОТ ЭТО ГЛАВНОЕ
       runs: reports.map(r => ({
         dayCode: r.dayCode,
         dayLabel: r.dayLabel,
@@ -71,7 +72,6 @@ function buildCombinedReport(reports: RoadMileageReport[]): RoadMileageReport {
     },
   };
 }
-
 type CalcScope = 'single' | 'full';
 
 type Task = {

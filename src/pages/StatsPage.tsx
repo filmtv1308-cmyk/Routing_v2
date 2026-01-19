@@ -107,6 +107,15 @@ export function StatsPage() {
   const roadReports = useMemo(() => (data.roadMileageReports || []), [data.roadMileageReports]);
 
   const exportRoadReportsXlsx = (reports: RoadMileageReport[], namePrefix: string) => {
+    // если это один общий отчёт (dayCode = ALL) — берём вложенные реальные отчёты
+  if (reports.length === 1 && (reports[0] as any).dayCode === 'ALL') {
+    const inner = (reports[0] as any).meta?.reports || [];
+    if (inner.length === 0) {
+      alert('В этом отчёте нет данных для экспорта.');
+      return;
+    }
+    reports = inner;
+  }
     // Enrich report stops with address (RoadMileageStop has no address field).
     // We keep export util generic and inject address into the "Name/Address" columns by patching stop name.
     // (The export util uses a lookup for address; here we prepare a map so it can fill addresses correctly.)

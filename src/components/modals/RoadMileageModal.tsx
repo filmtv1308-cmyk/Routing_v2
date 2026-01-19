@@ -30,6 +30,48 @@ function normalizeVisitMinutes(raw: Point['visitMinutes']): number {
   return Math.round(n);
 }
 
+function buildCombinedReport(reports: RoadMileageReport[]): RoadMileageReport {
+  const base = reports[0];
+
+  const driveMinutes = toIntMinutes(
+    reports.reduce((s, r) => s + r.driveMinutes, 0)
+  );
+  const serviceMinutes = toIntMinutes(
+    reports.reduce((s, r) => s + r.serviceMinutes, 0)
+  );
+
+  return {
+    ...base,
+    id: uid(),
+    createdAt: new Date().toISOString(),
+
+    // общий отчёт — не по одному дню
+    dayCode: 'ALL',
+    dayLabel: 'Все дни',
+    weekKey: 'ALL',
+
+    // агрегаты
+    stops: reports.flatMap(r => r.stops),
+    driveKm: round1(reports.reduce((s, r) => s + r.driveKm, 0)),
+    driveMinutes,
+    serviceMinutes,
+    totalMinutes: driveMinutes + serviceMinutes,
+
+    // список комбинаций как в Territory
+    meta: {
+      runs: reports.map(r => ({
+        dayCode: r.dayCode,
+        dayLabel: r.dayLabel,
+        isoWeek: r.isoWeek,
+        weekKey: r.weekKey,
+        stops: r.stops.length,
+        driveKm: r.driveKm,
+        totalMinutes: r.totalMinutes,
+      })),
+    },
+  };
+}
+
 type CalcScope = 'single' | 'full';
 
 type Task = {
@@ -474,13 +516,13 @@ export function RoadMileageModal(props: { open: boolean; onClose: () => void }) 
   };
 
   const saveWithoutOrder = () => {
-    if (!draftReports) return;
-    // store reports as-is (orderSaved=false)
-    for (const r of draftReports) {
-      addRoadMileageReport({ ...r, orderSaved: false });
-    }
-    onClose();
-  };
+  if (!draftReports || draftReports.length === 0) return;
+
+  const combined = buildCombinedReport(draftReports);
+  addRoadMileageReport({ ...combined, orderSaved: false });
+
+  onClose();
+};
 
   const saveWithOrder = () => {
     if (!draftReports || !draftOrders) return;
@@ -503,8 +545,10 @@ export function RoadMileageModal(props: { open: boolean; onClose: () => void }) 
 
     updatePoints(next);
 
-    for (const r of draftReports) {
-      addRoadMileageReport({ ...r, orderSaved: true });
+   const combined = buildCombinedReport(draftReports);
+   addRoadMileageReport({ ...combined, orderSaved: true });
+
+   onClose();
     }
 
     onClose();

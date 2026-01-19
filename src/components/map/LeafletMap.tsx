@@ -68,9 +68,10 @@ export function LeafletMap({ points, polygons, startPoints, onMapReady, onPointC
 
     const map = L.map(mapContainerRef.current, {
   zoomControl: true,
-  preferCanvas: true,          // 🔥 КРИТИЧНО для 10 000 точек
-  renderer: L.canvas(),        // 🔥 Рисуем через Canvas
-  fadeAnimation: false,        // отключаем анимации
+  attributionControl: false,   // ❌ ПОЛНОСТЬЮ УБИРАЕМ НАДПИСИ
+  preferCanvas: true,
+  renderer: L.canvas(),
+  fadeAnimation: false,
   zoomAnimation: false,
   markerZoomAnimation: false,
   inertia: true,

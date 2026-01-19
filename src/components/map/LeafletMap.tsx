@@ -16,9 +16,9 @@ interface LeafletMapProps {
 /* ===================== ИКОНКИ ТОЧЕК ===================== */
 
 function makeDivIcon(color: string, orderNumber: number | null = null): L.DivIcon {
-  // 🔥 ОПТИМАЛЬНЫЙ РАЗМЕР КАК РАНЬШЕ
-  const size = orderNumber != null ? 22 : 18;
-  const fontSize = orderNumber != null ? 11 : 9;
+  // уменьшаем размер точек на ~30%
+  const size = orderNumber != null ? 12 : 10;     // было 17 / 14
+  const fontSize = orderNumber != null ? 6 : 5;   // было 9 / 7
 
   const html = `
     <div style="position:relative; width:${size}px; height:${size}px;">
@@ -27,22 +27,20 @@ function makeDivIcon(color: string, orderNumber: number | null = null): L.DivIco
         height:${size}px;
         border-radius:${size / 2}px;
         background:${color};
-        border:2px solid #ffffff;
-        box-shadow:0 2px 6px rgba(0,0,0,.25)
+        border:1.5px solid #ffffff;
+        box-shadow:0 2px 5px rgba(0,0,0,.25)
       "></div>
-
       ${
         orderNumber != null
           ? `<div style="
               position:absolute;
               inset:0;
-              display:flex;
-              align-items:center;
-              justify-content:center;
+              display:grid;
+              place-items:center;
               color:#fff;
-              font-weight:800;
+              font-weight:700;
               font-size:${fontSize}px;
-              text-shadow:0 1px 2px rgba(0,0,0,0.6);
+              text-shadow:0 1px 2px rgba(0,0,0,0.5);
             ">${orderNumber}</div>`
           : ''
       }
@@ -54,6 +52,7 @@ function makeDivIcon(color: string, orderNumber: number | null = null): L.DivIco
     className: '',
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2],
   });
 }
 

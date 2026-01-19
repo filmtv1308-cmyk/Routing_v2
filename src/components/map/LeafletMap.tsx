@@ -66,20 +66,39 @@ export function LeafletMap({ points, polygons, startPoints, onMapReady, onPointC
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const map = L.map(mapContainerRef.current, { zoomControl: true }).setView([43.2383, 76.9279], 11);
+    const map = L.map(mapContainerRef.current, {
+  zoomControl: true,
+  preferCanvas: true,          // 🔥 КРИТИЧНО для 10 000 точек
+  renderer: L.canvas(),        // 🔥 Рисуем через Canvas
+  fadeAnimation: false,        // отключаем анимации
+  zoomAnimation: false,
+  markerZoomAnimation: false,
+  inertia: true,
+  updateWhenIdle: true,
+}).setView([43.2383, 76.9279], 11);
     
-    const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    });
+    const light = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 20,
+  attribution: '© OSM',
+  detectRetina: true,
+  updateWhenIdle: true,
+  keepBuffer: 6
+});
     
     const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Tiles &copy; Esri'
-    });
+  maxZoom: 19,
+  attribution: '© Esri',
+  updateWhenIdle: true,
+  keepBuffer: 6
+});
 
-    osm.addTo(map);
-    L.control.layers({ 'Схема': osm, 'Спутник': esri }, {}, { position: 'bottomright' }).addTo(map);
+light.addTo(map);
+
+L.control.layers(
+  { 'Схема': light, 'Спутник': esri },
+  {},
+  { position: 'bottomright' }
+).addTo(map);
 
     pointsLayerRef.current = L.layerGroup().addTo(map);
     polygonLayerRef.current = L.layerGroup().addTo(map);

@@ -81,11 +81,20 @@ export function LeafletMap({ points, polygons, startPoints, onMapReady, onPointC
     
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
-  attribution: '',
-  detectRetina: true,
+
+  // КРИТИЧНО ДЛЯ СКОРОСТИ:
+  detectRetina: false,        // ❌ отключаем Retina (в 2 раза меньше тайлов)
+  keepBuffer: 2,             // ❌ было 8 — слишком много памяти
   updateWhenIdle: true,
-  keepBuffer: 8,
-  crossOrigin: true,
+
+  // УБИРАЕМ ВСЕ ЭФФЕКТЫ:
+  fadeAnimation: false,
+  zoomAnimation: false,
+
+  // НЕ ТРОГАЕМ CORS
+  crossOrigin: false,
+
+  attribution: '',
 });
 
 osm.addTo(map);
@@ -108,6 +117,18 @@ map.on('zoomend', () => {
 });
     mapRef.current = map;
     onMapReady?.(map);
+    // ⚡ УСКОРЕНИЕ ZOOM — прячем точки во время приближения
+map.on('zoomstart', () => {
+  if (pointsLayerRef.current) {
+    map.removeLayer(pointsLayerRef.current);
+  }
+});
+
+map.on('zoomend', () => {
+  if (pointsLayerRef.current) {
+    pointsLayerRef.current.addTo(map);
+  }
+});
 
     return () => {
       map.remove();

@@ -59,6 +59,7 @@ export function LeafletMap({ points, polygons, startPoints, onMapReady, onPointC
   const pointsLayerRef = useRef<L.LayerGroup | null>(null);
   const selectionLayerRef = useRef<L.LayerGroup | null>(null);
   const roadTrackLayerRef = useRef<L.LayerGroup | null>(null);
+  const zoomRef = useRef<number>(11);
   
   const { mapMode, colorForRoute, mileageOrderNumbers, selection, setSelectionMode, addPointsToSelection, filters, sectionRoute, roadTrack } = useAppContext();
 
@@ -91,12 +92,20 @@ osm.addTo(map);
 
 
 
-    pointsLayerRef.current = L.layerGroup().addTo(map);
+    pointsLayerRef.current = L.layerGroup(undefined, {
+  updateWhenZooming: false,
+  updateWhenIdle: true,
+}).addTo(map);
     polygonLayerRef.current = L.layerGroup().addTo(map);
     startLayerRef.current = L.layerGroup().addTo(map);
     selectionLayerRef.current = L.layerGroup().addTo(map);
     roadTrackLayerRef.current = L.layerGroup().addTo(map);
+    
+    zoomRef.current = map.getZoom();
 
+map.on('zoomend', () => {
+  zoomRef.current = map.getZoom();
+});
     mapRef.current = map;
     onMapReady?.(map);
 

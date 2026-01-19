@@ -291,18 +291,14 @@ map.on('zoomend', () => {
       let marker = existingMarkers.get(p.id);
       
       if (!marker) {
-  marker = L.circleMarker([p.lat, p.lon], {
-    radius: orderNum != null ? 6 : 4,
-    color: '#ffffff',
-    weight: 1,
-    fillColor: color,
-    fillOpacity: 0.9,
+  // 🟢 ВОЗВРАЩАЕМ КРАСИВЫЕ КРУЖКИ + НУМЕРАЦИЮ
+  const icon = makeDivIcon(color, orderNum);
+
+  marker = L.marker([p.lat, p.lon], {
+    icon,
     pane: 'markerPane',
   });
 
-        const freqLabel = getFreqLabelFromCode(p.frequencyCode);
-        const dayLabel = day ? (DAY_CODE_TO_LABEL[day] || '') : '';
-        marker.on('click', () => {
   const freqLabel = getFreqLabelFromCode(p.frequencyCode);
   const dayLabel = day ? (DAY_CODE_TO_LABEL[day] || '') : '';
 
@@ -324,27 +320,25 @@ map.on('zoomend', () => {
     </div>
   `);
 
-  marker.openPopup();
-  onPointClick?.(p.id);
-});
-
-        // Click on marker: scroll list to point
-        marker.on('click', () => {
-          onPointClick?.(p.id);
-        });
-
-        existingMarkers.set(p.id, marker);
-        pointsLayerRef.current.addLayer(marker);
-      } else {
-  (marker as L.CircleMarker).setStyle({
-    fillColor: color,
-    radius: orderNum != null ? 6 : 4,
+  marker.on('click', () => {
+    onPointClick?.(p.id);
   });
-        if (!pointsLayerRef.current.hasLayer(marker)) {
-          pointsLayerRef.current.addLayer(marker);
-        }
-      }
-    }
+
+  existingMarkers.set(p.id, marker);
+  pointsLayerRef.current.addLayer(marker);
+
+} else {
+  // 🔄 ОБНОВЛЯЕМ ИКОНКУ ЕСЛИ ИЗМЕНИЛСЯ ЦВЕТ ИЛИ НОМЕР
+  marker.setIcon(makeDivIcon(color, orderNum));
+
+  if (!pointsLayerRef.current.hasLayer(marker)) {
+    pointsLayerRef.current.addLayer(marker);
+  }
+}
+    }       ${dayLabel ? `<div><b>День:</b> ${dayLabel}</div>` : ''}
+        ${p.visitMinutes ? `<div><b>Время на посещение:</b> ${p.visitMinutes} мин</div>` : ''}
+        ${p.manager ? `<div><b>Менеджер:</b> ${p.manager}</div>` : ''}
+ 
 
     // Remove markers no longer visible
     for (const [id, marker] of existingMarkers) {

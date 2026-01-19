@@ -318,50 +318,58 @@ export function StatsPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {roadReports
-                .slice()
-                .sort((a, b) => (b.createdAt.localeCompare(a.createdAt)))
-                .map((r) => (
-                  <div
-                    key={r.id}
-                    className="border border-slate-200 dark:border-white/10 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-white/5"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="font-semibold text-slate-900 dark:text-white truncate">
-                          {r.route} • {r.dayLabel} • ISO {r.isoWeek} • W{r.weekKey}
-                        </div>
-                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                          Дата: {new Date(r.createdAt).toLocaleString('ru-RU')} • Точек: <b>{r.stops.length}</b> • Пробег: <b>{r.driveKm} км</b> • Итого: <b>{Math.floor(r.totalMinutes / 60)}ч {r.totalMinutes % 60}м</b>
-                          {r.orderSaved ? (
-                            <span className="ml-2 text-emerald-600">(порядок сохранён)</span>
-                          ) : (
-                            <span className="ml-2 text-slate-400">(без сохранения порядка)</span>
-                          )}
-                        </div>
-                      </div>
+  {roadReports
+  .filter((r) => r.dayCode === 'ALL')
+  .slice()
+  .sort((a, b) => (b.createdAt.localeCompare(a.createdAt)))
+  .map((r) => {
+    const runs = (r.meta?.runs || []);
+    const totalCombos = runs.length;
+    const totalStops = runs.reduce((s: number, x: any) => s + (x.stops || 0), 0);
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => exportRoadReportsXlsx([r], `Секции_ПробегДороги_${r.route}`)}
-                          className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200"
-                          title="Экспорт в формате маршрутного отчёта (одна вкладка = маршрут, блоки ПН–ПТ, колонки W1–W4)"
-                        >
-                          📤 XLSX (маршрут)
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (!confirm('Удалить этот отчёт?')) return;
-                            deleteRoadMileageReport(r.id);
-                          }}
-                          className="text-xs px-2 py-1.5 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-400/30 dark:text-rose-200"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+    return (
+      <div
+        key={r.id}
+        className="border border-slate-200 dark:border-white/10 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-white/5"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="font-semibold text-slate-900 dark:text-white truncate">
+              Запуск: {new Date(r.createdAt).toLocaleString('ru-RU')} • Маршрут: {r.route}
+              {r.orderSaved ? (
+                <span className="ml-2 text-xs text-emerald-600">(порядок сохранён)</span>
+              ) : (
+                <span className="ml-2 text-xs text-slate-400">(без сохранения порядка)</span>
+              )}
+            </div>
+
+            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Комбинаций (дни × недели): <b>{totalCombos}</b> • Точек: <b>{totalStops}</b> • Пробег: <b>{r.driveKm} км</b> • Итого: <b>{Math.floor(r.totalMinutes / 60)}ч {r.totalMinutes % 60}м</b>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => exportRoadReportsXlsx([r], `Секции_ПробегДороги_${r.route}`)}
+              className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200"
+            >
+              📤 XLSX (общий)
+            </button>
+
+            <button
+              onClick={() => {
+                if (!confirm('Удалить этот отчёт?')) return;
+                deleteRoadMileageReport(r.id);
+              }}
+              className="text-xs px-2 py-1.5 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-400/30 dark:text-rose-200"
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  })}
             </div>
           )}
         </div>

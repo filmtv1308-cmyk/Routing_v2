@@ -524,35 +524,31 @@ export function RoadMileageModal(props: { open: boolean; onClose: () => void }) 
   onClose();
 };
 
-  const saveWithOrder = () => {
-    if (!draftReports || !draftOrders) return;
+const saveWithOrder = () => {
+  if (!draftReports || !draftOrders) return;
+  if (draftReports.length === 0) return;
 
-    // if for some reason there is nothing to save (should not happen), keep the button disabled
-    if (draftReports.length === 0) return;
+  // сохраняем порядок в точки
+  const next = data.points.map((p) => {
+    const upd = draftOrders[p.id];
+    if (!upd) return p;
+    return {
+      ...p,
+      visitOrderByWeek: {
+        ...(p.visitOrderByWeek || {}),
+        ...upd,
+      },
+    };
+  });
 
-    // persist all orders into visitOrderByWeek
-    const next = data.points.map((p) => {
-      const upd = draftOrders[p.id];
-      if (!upd) return p;
-      return {
-        ...p,
-        visitOrderByWeek: {
-          ...(p.visitOrderByWeek || {}),
-          ...upd,
-        },
-      };
-    });
+  updatePoints(next);
 
-    updatePoints(next);
+  // сохраняем ОДИН объединённый отчёт
+  const combined = buildCombinedReport(draftReports);
+  addRoadMileageReport({ ...combined, orderSaved: true });
 
-   const combined = buildCombinedReport(draftReports);
-   addRoadMileageReport({ ...combined, orderSaved: true });
-
-   onClose();
-    }
-
-    onClose();
-  };
+  onClose();
+};
 
   const totals = useMemo(() => {
     if (!draftReports) return null;

@@ -164,6 +164,7 @@ export interface RoadMileageReport {
     type: 'LineString';
     coords: [number, number][]; // [lat, lon]
   };
+   meta?: any;
 }
 
 /** Territory calculation run (multi-route, multi-day, multi-week) */

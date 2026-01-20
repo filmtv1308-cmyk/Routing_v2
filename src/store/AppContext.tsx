@@ -184,44 +184,44 @@ const [state, setState] = useState<AppState>(() => ({
   roadTrack: null
 }));
 
-  useEffect(() => {
+ useEffect(() => {
   const unsub = auth.onAuthStateChanged((user: any) => {
-    console.log('AUTH CALLBACK USER =', user);
-    console.log('AUTH STATE CHANGED:', user);
+    console.log('AUTH USER =', user);
 
-    if (!user) {
+    if (!user || !user.email) {
       setState(s => ({ ...s, session: null }));
       return;
     }
 
-     // сохраняем email текущего пользователя
-localStorage.setItem('firebase_user_email', user.email);
+    // сохраняем email текущего пользователя
+    localStorage.setItem('firebase_user_email', user.email);
 
-// ищем пользователя в локальных users по email
-let localUser = state.data.users.find(u => u.login === user.email);
+    // ищем пользователя в локальных users
+    let localUser = state.data.users.find(u => u.login === user.email);
 
-// если такого ещё нет — создаём нового User
-if (!localUser) {
-  localUser = {
-    id: uid(),
-    fullName: user.email,
-    login: user.email,
-    password: '',
-    role: user.email === ADMIN_EMAIL ? 'Admin' : 'User',
-    route: ''
-  };
+    // если пользователя ещё нет — создаём
+    if (!localUser) {
+      localUser = {
+        id: uid(),
+        fullName: user.email,
+        login: user.email,
+        password: '',
+        role: user.email === ADMIN_EMAIL ? 'Admin' : 'User',
+        route: ''
+      };
 
-  state.data.users.push(localUser);
-  localStorage.setItem(STORAGE_KEY(), JSON.stringify(state.data));
-}
+      const newUsers = [...state.data.users, localUser];
+      const newData = { ...state.data, users: newUsers };
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
+    }
 
-// создаём сессию
-setState(s => ({
-  ...s,
-  session: {
-    userId: localUser!.id
-  }
-  }));
+    // создаём сессию
+    setState(s => ({
+      ...s,
+      session: {
+        userId: localUser!.id
+      }
+    }));
   });
 
   return () => unsub();

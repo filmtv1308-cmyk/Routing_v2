@@ -193,20 +193,22 @@ const [state, setState] = useState<AppState>(() => ({
       return;
     }
 
-    // пускаем ТОЛЬКО администратора
     if (user.email === ADMIN_EMAIL) {
-      const admin = state.data.users.find(u => u.login === 'admin');
+  // сохраняем email текущего пользователя
+  localStorage.setItem('firebase_user_email', user.email);
 
-      if (admin) {
-        setState(s => ({
-          ...s,
-          session: {
-            userId: admin.id
-          }
-        }));
+  const admin = state.data.users.find(u => u.login === 'admin');
+
+  if (admin) {
+    setState(s => ({
+      ...s,
+      session: {
+        userId: admin.id
       }
-      return;
-    }
+    }));
+  }
+  return;
+}
 
     // всех остальных не пускаем
     console.warn('Unauthorized email:', user.email);

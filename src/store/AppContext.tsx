@@ -208,7 +208,7 @@ const [state, setState] = useState<AppState>(() => ({
     }));
   }
   return;
-}
+  }
 
     // всех остальных не пускаем
     console.warn('Unauthorized email:', user.email);

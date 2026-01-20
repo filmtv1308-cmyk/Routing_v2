@@ -1,31 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAppContext } from '@/store/AppContext';
 
 export function LoginScreen() {
-  const { login, getRememberedCredentials } = useAppContext();
-  const [username, setUsername] = useState('');
+  const { login } = useAppContext();
+
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const saved = getRememberedCredentials();
-    if (saved) {
-      setUsername(saved.login);
-      setPassword(saved.password);
-      setRemember(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.trim() || !password.trim()) {
+      setError('Введите email и пароль.');
+      return;
     }
-  }, [getRememberedCredentials]);
 
-  try {
-  await login(email.trim(), password.trim(), true);
-  // если дошли сюда — Firebase сам залогинит и экран исчезнет
-} catch {
-  setError('Неверный email или пароль.');
-} finally {
-  setLoading(false);
-}
+    setLoading(true);
+
+    try {
+      await login(email.trim(), password.trim(), true);
+      // ЕСЛИ ВХОД УСПЕШЕН → onAuthStateChanged откроет приложение сам
+    } catch {
+      setError('Неверный email или пароль.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-white dark:bg-[#0b1220]">
@@ -37,18 +41,19 @@ export function LoginScreen() {
             <div className="text-sm text-slate-500 dark:text-slate-300/70">Вход в систему</div>
           </div>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-3">
           <label className="block text-sm">
-            <span className="text-slate-600 dark:text-slate-300/80">Логин</span>
+            <span className="text-slate-600 dark:text-slate-300/80">Email</span>
             <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400 text-slate-900 dark:text-white"
-              placeholder="admin"
+              placeholder="user@example.com"
+              type="email"
             />
           </label>
-          
+
           <label className="block text-sm">
             <span className="text-slate-600 dark:text-slate-300/80">Пароль</span>
             <div className="relative mt-1">
@@ -57,7 +62,7 @@ export function LoginScreen() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2 pr-10 outline-none focus:ring-2 focus:ring-sky-400 text-slate-900 dark:text-white"
-                placeholder="admin123"
+                placeholder="Пароль"
               />
               <button
                 type="button"
@@ -68,28 +73,19 @@ export function LoginScreen() {
               </button>
             </div>
           </label>
-          
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 dark:border-white/20 accent-sky-500"
-            />
-            <span className="text-slate-600 dark:text-slate-300/80">Запомнить меня</span>
-          </label>
-          
+
           <button
             type="submit"
-            className="w-full rounded-xl py-2.5 text-white font-medium shadow bg-[#2196F3] hover:bg-[#1976D2] transition-colors"
+            disabled={loading}
+            className="w-full rounded-xl py-2.5 text-white font-medium shadow bg-[#2196F3] hover:bg-[#1976D2] transition-colors disabled:opacity-60"
           >
-            Войти
+            {loading ? 'Вход...' : 'Войти'}
           </button>
-          
+
           {error && <div className="text-sm text-rose-600">{error}</div>}
-          
+
           <div className="text-xs text-slate-500 dark:text-slate-300/60">
-            Демо: <span className="font-mono">admin / admin123</span> (Admin), <span className="font-mono">user / user123</span> (User)
+            Вход только для пользователей, зарегистрированных в системе
           </div>
         </form>
       </div>

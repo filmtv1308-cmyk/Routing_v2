@@ -1,19 +1,17 @@
-
 declare global {
   interface Window {
     firebase: any;
   }
 }
 
-// 🔴 ВСТАВЬ СЮДА ДАННЫЕ ИЗ FIREBASE CONSOLE
 const firebaseConfig = {
-  apiKey: "ВСТАВЬ_API_KEY_ОТСЮДА",
-  authDomain: "ВСТАВЬ_AUTH_DOMAIN_ОТСЮДА",
-  projectId: "ВСТАВЬ_PROJECT_ID_ОТСЮДА",
-  appId: "ВСТАВЬ_APP_ID_ОТСЮДА",
+  apiKey: "AIzaSyBRiGduv-HbD94-0k1X1zQckdgmV3SXhtQ",
+  authDomain: "routes-on-the-map.firebaseapp.com",
+  projectId: "routes-on-the-map",
+  appId: "1:478985077465:web:332967b3a357f6d295f4c8",
 };
 
-// инициализация Firebase (САМОЕ ВАЖНОЕ)
+// инициализация Firebase
 window.firebase.initializeApp(firebaseConfig);
 
 // экспорт авторизации

@@ -24,8 +24,10 @@ export function LoginScreen() {
     try {
       await login(email.trim(), password.trim(), true);
       // ЕСЛИ ВХОД УСПЕШЕН → onAuthStateChanged откроет приложение сам
-    } catch {
-      setError('Неверный email или пароль.');
+    } catch (e: any) {
+  console.error('FIREBASE LOGIN ERROR:', e);
+  setError(e?.code || 'Ошибка входа');
+}
     } finally {
       setLoading(false);
     }

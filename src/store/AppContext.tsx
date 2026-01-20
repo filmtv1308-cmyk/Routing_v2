@@ -192,32 +192,38 @@ const [state, setState] = useState<AppState>(() => ({
   roadTrack: null
 }));
 
-useEffect(() => {
+  useEffect(() => {
   const unsub = auth.onAuthStateChanged((user: any) => {
     console.log('AUTH STATE CHANGED:', user);
 
-    if (user) {
-      // ищем пользователя в локальном списке по email
-      const found = state.data.users.find(u => u.login === user.email);
+    if (!user) {
+      setState(s => ({ ...s, session: null }));
+      return;
+    }
 
-      if (found) {
+    // пускаем ТОЛЬКО администратора
+    if (user.email === ADMIN_EMAIL) {
+      const admin = state.data.users.find(u => u.login === 'admin');
+
+      if (admin) {
         setState(s => ({
           ...s,
           session: {
-            userId: found.id   // 🔴 ВАЖНО: именно userId, как ждёт твой проект
+            userId: admin.id
           }
         }));
-      } else {
-        // если email не найден в users — не пускаем
-        setState(s => ({ ...s, session: null }));
       }
-    } else {
-      setState(s => ({ ...s, session: null }));
+      return;
     }
+
+    // всех остальных не пускаем
+    console.warn('Unauthorized email:', user.email);
+    setState(s => ({ ...s, session: null }));
   });
 
   return () => unsub();
 }, [state.data.users]);
+
 
 
   useEffect(() => {

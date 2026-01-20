@@ -170,7 +170,7 @@ function loadTheme(): 'light' | 'dark' {
   const t = localStorage.getItem('rm_theme') || 'light';
   return t === 'dark' ? 'dark' : 'light';
 }
-
+export function AppProvider({ children }: { children: React.ReactNode }) {
 const [state, setState] = useState<AppState>(() => ({
   data: loadData(),
   session: null,
@@ -194,21 +194,31 @@ const [state, setState] = useState<AppState>(() => ({
 
 useEffect(() => {
   const unsub = auth.onAuthStateChanged((user: any) => {
+    console.log('AUTH STATE CHANGED:', user);
+
     if (user) {
-      setState(s => ({
-        ...s,
-        session: {
-          uid: user.uid,
-          email: user.email || ''
-        }
-      }));
+      // ищем пользователя в локальном списке по email
+      const found = state.data.users.find(u => u.login === user.email);
+
+      if (found) {
+        setState(s => ({
+          ...s,
+          session: {
+            userId: found.id   // 🔴 ВАЖНО: именно userId, как ждёт твой проект
+          }
+        }));
+      } else {
+        // если email не найден в users — не пускаем
+        setState(s => ({ ...s, session: null }));
+      }
     } else {
       setState(s => ({ ...s, session: null }));
     }
   });
 
   return () => unsub();
-}, []);
+}, [state.data.users]);
+
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', state.theme === 'dark');
@@ -253,26 +263,22 @@ useEffect(() => {
   const login = useCallback(async (email: string, password: string, remember: boolean) => {
   try {
     await auth.signInWithEmailAndPassword(email, password);
-    // НИЧЕГО НЕ ВОЗВРАЩАЕМ — дальше всё сделает onAuthStateChanged
-    return;
-  } catch (e: any) {
-    console.error(e);
-    throw e; // пробрасываем ошибку в форму
-  }
-}, []);
-    
-    const session = { userId: user.id };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    
+
+    // сохраняем "запомнить меня" ТОЛЬКО для формы
     if (remember) {
-      localStorage.setItem(REMEMBER_KEY, JSON.stringify({ login: username, password }));
+      localStorage.setItem(REMEMBER_KEY, JSON.stringify({ login: email, password }));
     } else {
       localStorage.removeItem(REMEMBER_KEY);
     }
-    
-    setState(s => ({ ...s, session }));
+
+    // ничего не делаем со state — onAuthStateChanged всё сделает сам
     return true;
-  }, [state.data.users]);
+  } catch (e: any) {
+    console.error(e);
+    return false;
+  }
+}, []);
+
 
   const logout = useCallback(() => {
     localStorage.removeItem(SESSION_KEY);

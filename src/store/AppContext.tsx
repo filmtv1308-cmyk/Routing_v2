@@ -186,6 +186,7 @@ const [state, setState] = useState<AppState>(() => ({
 
   useEffect(() => {
   const unsub = auth.onAuthStateChanged((user: any) => {
+    console.log('AUTH CALLBACK USER =', user);
     console.log('AUTH STATE CHANGED:', user);
 
     if (!user) {

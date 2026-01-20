@@ -264,6 +264,7 @@ const [state, setState] = useState<AppState>(() => ({
   const login = useCallback(async (email: string, password: string, remember: boolean) => {
   try {
     await auth.signInWithEmailAndPassword(email, password);
+    localStorage.setItem('firebase_user_email', email);
 
     // сохраняем "запомнить меня" ТОЛЬКО для формы
     if (remember) {

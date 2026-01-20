@@ -1,4 +1,7 @@
-export const STORAGE_KEY = 'rm_data_v1';
+export const STORAGE_KEY = () => {
+  const email = localStorage.getItem('firebase_user_email');
+  return email ? `rm_data_v1__${email}` : 'rm_data_v1';
+};
 export const SESSION_KEY = 'rm_session_v1';
 export const REMEMBER_KEY = 'rm_remember_v1';
 

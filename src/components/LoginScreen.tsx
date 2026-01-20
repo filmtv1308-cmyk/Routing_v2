@@ -21,16 +21,14 @@ export function LoginScreen() {
 
     setLoading(true);
 
-    try {
-      await login(email.trim(), password.trim(), true);
-      // ЕСЛИ ВХОД УСПЕШЕН → onAuthStateChanged откроет приложение сам
-    } catch (e: any) {
-  console.error('FIREBASE LOGIN ERROR:', e);
-  setError(e?.code || 'Ошибка входа');
-}
-    } finally {
-      setLoading(false);
+    const ok = await login(email.trim(), password.trim(), true);
+
+    if (!ok) {
+      setError('Неверный email или пароль.');
     }
+    // если ok === true → экран исчезнет сам через onAuthStateChanged
+
+    setLoading(false);
   };
 
   return (
@@ -51,7 +49,7 @@ export function LoginScreen() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400 text-slate-900 dark:text-white"
-              placeholder="user@example.com"
+              placeholder="timenkov.sv@yandex.ru"
               type="email"
             />
           </label>
@@ -87,7 +85,7 @@ export function LoginScreen() {
           {error && <div className="text-sm text-rose-600">{error}</div>}
 
           <div className="text-xs text-slate-500 dark:text-slate-300/60">
-            Вход только для пользователей, зарегистрированных в системе
+            Вход только для администратора Firebase
           </div>
         </form>
       </div>

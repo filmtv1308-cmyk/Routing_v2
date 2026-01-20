@@ -102,10 +102,10 @@ export function useAppContext() {
 }
 
 function loadData(): AppData {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = localStorage.getItem(STORAGE_KEY());
   if (!raw) {
     const d = defaultData();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+    localStorage.setItem(STORAGE_KEY(), JSON.stringify(d));
     return d;
   }
   try {
@@ -143,7 +143,7 @@ function loadData(): AppData {
     return d;
   } catch {
     const d = defaultData();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+    localStorage.setItem(STORAGE_KEY(), JSON.stringify(d));
     return d;
   }
 }
@@ -226,7 +226,7 @@ const [state, setState] = useState<AppState>(() => ({
   }, [state.theme]);
 
   const saveData = useCallback(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+    localStorage.setItem(STORAGE_KEY(), JSON.stringify(state.data));
   }, [state.data]);
 
   useEffect(() => {
@@ -264,6 +264,7 @@ const [state, setState] = useState<AppState>(() => ({
   const login = useCallback(async (email: string, password: string, remember: boolean) => {
   try {
     await auth.signInWithEmailAndPassword(email, password);
+
     localStorage.setItem('firebase_user_email', email);
 
     // сохраняем "запомнить меня" ТОЛЬКО для формы
@@ -469,7 +470,7 @@ const [state, setState] = useState<AppState>(() => ({
   const updatePoints = useCallback((points: Point[]) => {
     setState(s => {
       const newData = { ...s.data, points };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -496,7 +497,7 @@ const [state, setState] = useState<AppState>(() => ({
       }
       const newPoints = Array.from(byCode.values());
       const newData = { ...s.data, points: newPoints };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -537,7 +538,7 @@ const [state, setState] = useState<AppState>(() => ({
           pointsFiles: nextFiles
         }
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -560,7 +561,7 @@ const [state, setState] = useState<AppState>(() => ({
           pointsFiles: nextFiles
         }
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return {
         ...s,
         data: newData,
@@ -579,7 +580,7 @@ const [state, setState] = useState<AppState>(() => ({
           pointsFiles: []
         }
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData, selection: { ...s.selection, selectedIds: new Set() } };
     });
   }, []);
@@ -587,7 +588,7 @@ const [state, setState] = useState<AppState>(() => ({
   const updatePolygons = useCallback((polygons: AppData['polygons']) => {
     setState(s => {
       const newData = { ...s.data, polygons };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -595,7 +596,7 @@ const [state, setState] = useState<AppState>(() => ({
   const addPolygons = useCallback((polygons: AppData['polygons']) => {
     setState(s => {
       const newData = { ...s.data, polygons: [...s.data.polygons, ...polygons] };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -617,7 +618,7 @@ const [state, setState] = useState<AppState>(() => ({
           polygonFiles: nextFiles
         }
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -634,7 +635,7 @@ const [state, setState] = useState<AppState>(() => ({
           polygonFiles: nextFiles
         }
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -649,7 +650,7 @@ const [state, setState] = useState<AppState>(() => ({
           polygonFiles: []
         }
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -657,7 +658,7 @@ const [state, setState] = useState<AppState>(() => ({
   const updateStartPoints = useCallback((startPoints: AppData['startPoints']) => {
     setState(s => {
       const newData = { ...s.data, startPoints };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -665,7 +666,7 @@ const [state, setState] = useState<AppState>(() => ({
   const deleteAllStartPoints = useCallback(() => {
     setState(s => {
       const newData = { ...s.data, startPoints: [] };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -673,7 +674,7 @@ const [state, setState] = useState<AppState>(() => ({
   const updateUsers = useCallback((users: User[]) => {
     setState(s => {
       const newData = { ...s.data, users };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -681,7 +682,7 @@ const [state, setState] = useState<AppState>(() => ({
   const addUser = useCallback((user: User) => {
     setState(s => {
       const newData = { ...s.data, users: [...s.data.users, user] };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -689,7 +690,7 @@ const [state, setState] = useState<AppState>(() => ({
   const deleteUser = useCallback((id: string) => {
     setState(s => {
       const newData = { ...s.data, users: s.data.users.filter(u => u.id !== id) };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -698,7 +699,7 @@ const [state, setState] = useState<AppState>(() => ({
     setState(s => {
       const reports = [report, ...(s.data.mileageReports || [])].slice(0, 50);
       const newData = { ...s.data, mileageReports: reports };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -706,7 +707,7 @@ const [state, setState] = useState<AppState>(() => ({
   const deleteMileageReport = useCallback((id: string) => {
     setState(s => {
       const newData = { ...s.data, mileageReports: (s.data.mileageReports || []).filter(r => r.id !== id) };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -714,7 +715,7 @@ const [state, setState] = useState<AppState>(() => ({
   const clearMileageReports = useCallback(() => {
     setState(s => {
       const newData = { ...s.data, mileageReports: [] };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -723,7 +724,7 @@ const [state, setState] = useState<AppState>(() => ({
     setState(s => {
       const reports = [report, ...(s.data.roadMileageReports || [])].slice(0, 200);
       const newData = { ...s.data, roadMileageReports: reports };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -734,7 +735,7 @@ const [state, setState] = useState<AppState>(() => ({
       // As per latest requirements, territory runs replace legacy reports UI.
       // We keep old arrays in data for backward-compat, but new UI ignores them.
       const newData = { ...s.data, territoryCalcRuns: runs };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -743,7 +744,7 @@ const [state, setState] = useState<AppState>(() => ({
     setState(s => {
       const next = (s.data.territoryCalcRuns || []).map(r => (r.id === run.id ? run : r));
       const newData = { ...s.data, territoryCalcRuns: next };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -752,7 +753,7 @@ const [state, setState] = useState<AppState>(() => ({
     setState(s => {
       const next = (s.data.territoryCalcRuns || []).filter(r => r.id !== id);
       const newData = { ...s.data, territoryCalcRuns: next };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -760,7 +761,7 @@ const [state, setState] = useState<AppState>(() => ({
   const clearTerritoryCalcRuns = useCallback(() => {
     setState(s => {
       const newData = { ...s.data, territoryCalcRuns: [] };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -771,7 +772,7 @@ const [state, setState] = useState<AppState>(() => ({
         ...s.data,
         roadMileageReports: (s.data.roadMileageReports || []).filter(r => r.id !== id)
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -779,7 +780,7 @@ const [state, setState] = useState<AppState>(() => ({
   const clearRoadMileageReports = useCallback(() => {
     setState(s => {
       const newData = { ...s.data, roadMileageReports: [] };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(newData));
       return { ...s, data: newData };
     });
   }, []);
@@ -826,7 +827,7 @@ const [state, setState] = useState<AppState>(() => ({
         nextSession = null;
       }
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(d));
       if (nextSession) localStorage.setItem(SESSION_KEY, JSON.stringify(nextSession));
       else localStorage.removeItem(SESSION_KEY);
 
@@ -902,7 +903,7 @@ const [state, setState] = useState<AppState>(() => ({
         }
       }
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(STORAGE_KEY(), JSON.stringify(data));
       if (nextSession) localStorage.setItem(SESSION_KEY, JSON.stringify(nextSession));
       else localStorage.removeItem(SESSION_KEY);
 

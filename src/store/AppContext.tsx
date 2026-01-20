@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import { auth, ADMIN_EMAIL } from '@/utils/firebase';
 import { AppData, User, Session, MapMode, Page, Point, RoadMileageReport, TerritoryCalcRun } from '@/types';
 import { STORAGE_KEY, SESSION_KEY, REMEMBER_KEY, ROUTE_COLORS } from '@/constants';
 import { defaultData } from './defaultData';
@@ -170,27 +171,44 @@ function loadTheme(): 'light' | 'dark' {
   return t === 'dark' ? 'dark' : 'light';
 }
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AppState>(() => ({
-    data: loadData(),
-    session: loadSession(),
-    page: 'map',
-    mapMode: 'territory',
-    sectionRoute: null,
-    filters: {
-      routes: new Set(),
-      branches: new Set(),
-      days: new Set(),
-      cycleWeeks: new Set()
-    },
-    selection: {
-      selectedIds: new Set(),
-      mode: null
-    },
-    theme: loadTheme(),
-    mileageOrderNumbers: null,
-    roadTrack: null
-  }));
+const [state, setState] = useState<AppState>(() => ({
+  data: loadData(),
+  session: null,
+  page: 'map',
+  mapMode: 'territory',
+  sectionRoute: null,
+  filters: {
+    routes: new Set(),
+    branches: new Set(),
+    days: new Set(),
+    cycleWeeks: new Set()
+  },
+  selection: {
+    selectedIds: new Set(),
+    mode: null
+  },
+  theme: loadTheme(),
+  mileageOrderNumbers: null,
+  roadTrack: null
+}));
+
+useEffect(() => {
+  const unsub = auth.onAuthStateChanged((user: any) => {
+    if (user) {
+      setState(s => ({
+        ...s,
+        session: {
+          uid: user.uid,
+          email: user.email || ''
+        }
+      }));
+    } else {
+      setState(s => ({ ...s, session: null }));
+    }
+  });
+
+  return () => unsub();
+}, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', state.theme === 'dark');

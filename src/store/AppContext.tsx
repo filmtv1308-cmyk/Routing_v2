@@ -122,14 +122,6 @@ function loadData(): AppData {
     d.roadMileageReports = d.roadMileageReports || [];
     d.territoryCalcRuns = d.territoryCalcRuns || [];
 
-    const hasAdmin = d.users.some(u => u?.login === 'admin');
-    if (!hasAdmin) {
-      d.users.push({ id: uid(), fullName: 'Администратор', login: 'admin', password: 'admin123', role: 'Admin', route: '' });
-    }
-    const hasUser = d.users.some(u => u?.login === 'user');
-    if (!hasUser) {
-      d.users.push({ id: uid(), fullName: 'Торговый представитель', login: 'user', password: 'user123', role: 'User', route: 'R1' });
-    }
 
     for (const p of d.points) {
       if (p.frequencyCode) p.frequencyCode = normalizeFreqCode(p.frequencyCode);

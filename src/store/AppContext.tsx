@@ -194,26 +194,34 @@ const [state, setState] = useState<AppState>(() => ({
       return;
     }
 
-    if (user.email === ADMIN_EMAIL) {
-  // сохраняем email текущего пользователя
-  localStorage.setItem('firebase_user_email', user.email);
+     // сохраняем email текущего пользователя
+localStorage.setItem('firebase_user_email', user.email);
 
-  const admin = state.data.users.find(u => u.login === 'admin');
+// ищем пользователя в локальных users по email
+let localUser = state.data.users.find(u => u.login === user.email);
 
-  if (admin) {
-    setState(s => ({
-      ...s,
-      session: {
-        userId: admin.id
-      }
-    }));
+// если такого ещё нет — создаём нового User
+if (!localUser) {
+  localUser = {
+    id: uid(),
+    fullName: user.email,
+    login: user.email,
+    password: '',
+    role: user.email === ADMIN_EMAIL ? 'Admin' : 'User',
+    route: ''
+  };
+
+  state.data.users.push(localUser);
+  localStorage.setItem(STORAGE_KEY(), JSON.stringify(state.data));
+}
+
+// создаём сессию
+setState(s => ({
+  ...s,
+  session: {
+    userId: localUser!.id
   }
-  return;
-  }
-
-    // всех остальных не пускаем
-    console.warn('Unauthorized email:', user.email);
-    setState(s => ({ ...s, session: null }));
+  }));
   });
 
   return () => unsub();

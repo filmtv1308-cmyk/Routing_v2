@@ -18,20 +18,14 @@ export function LoginScreen() {
     }
   }, [getRememberedCredentials]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    
-    if (!username.trim() || !password.trim()) {
-      setError('Введите логин и пароль.');
-      return;
-    }
-    
-    const success = login(username.trim(), password.trim(), remember);
-    if (!success) {
-      setError('Неверный логин или пароль.');
-    }
-  };
+  try {
+  await login(email.trim(), password.trim(), true);
+  // если дошли сюда — Firebase сам залогинит и экран исчезнет
+} catch {
+  setError('Неверный email или пароль.');
+} finally {
+  setLoading(false);
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-white dark:bg-[#0b1220]">

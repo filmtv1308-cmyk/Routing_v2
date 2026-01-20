@@ -250,9 +250,16 @@ useEffect(() => {
     return ROUTE_COLORS[idx % ROUTE_COLORS.length];
   }, [routesFromPoints]);
 
-  const login = useCallback((username: string, password: string, remember: boolean) => {
-    const user = state.data.users.find(u => u.login === username && u.password === password);
-    if (!user) return false;
+  const login = useCallback(async (email: string, password: string, remember: boolean) => {
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    // НИЧЕГО НЕ ВОЗВРАЩАЕМ — дальше всё сделает onAuthStateChanged
+    return;
+  } catch (e: any) {
+    console.error(e);
+    throw e; // пробрасываем ошибку в форму
+  }
+}, []);
     
     const session = { userId: user.id };
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
